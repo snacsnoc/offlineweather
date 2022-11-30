@@ -24,139 +24,155 @@
 		<script type='text/javascript' src='api_key.js'></script>
 
 		<script>
-			/* Define our UpUp parameters
-			cache-version: defined site version that's cached. a number 
-			bump will result in a refresh of the cache
-			
-			content-url: the offline page to show to the user
+		/* Define our UpUp parameters
+					cache-version: defined site version that's cached. a number 
+					bump will result in a refresh of the cache
+					
+					content-url: the offline page to show to the user
 
-			assets: media assets to cache
+					assets: media assets to cache
 
-			*/
+		*/
 		UpUp.start({
-			'cache-version': 'v1',
-			'content-url': 'offline.html',
-			'assets': ['/img/offline.png', '/bootstrap-reboot.min.css', '/style.css', '/apple-touch-icon.png', '/josefin-sans.ttf']
+		    'cache-version': 'v1',
+		    'content-url': 'offline.html',
+		    'assets': ['/img/offline.png', '/bootstrap-reboot.min.css', '/style.css', '/apple-touch-icon.png', '/josefin-sans.ttf']
 		});
 
 		const localStorage = window.localStorage;
 		var weatherDataObject = JSON.parse(localStorage.getItem(1));
 
 
-		if(weatherDataObject) {
-			var place_location = weatherDataObject.location;
-			var region = weatherDataObject.region;
-			if(place_location) {
-				document.getElementById("destination").value = place_location + "," + region;
-			} else {
-				document.getElementById("destination").value = "Las Vegas, NV";
-			}
+		if (weatherDataObject) {
+		    var place_location = weatherDataObject.location;
+		    var region = weatherDataObject.region;
+		    if (place_location) {
+		        document.getElementById("destination")
+		            .value = place_location + "," + region;
+		    } else {
+		        document.getElementById("destination")
+		            .value = "Las Vegas, NV";
+		    }
 		} else {
-			document.getElementById("destination").value = "Houston, Texas";
+		    document.getElementById("destination")
+		        .value = "Houston, Texas";
 		}
 
 		const initialize = () => {
-			let status = "Offline";
-			if(navigator.onLine) {
-				status = "Online";
-				loadData();
-			} else {
-				let status = "offline";
-				location = "/offline.html";
-			}
+		    let status = "Offline";
+		    if (navigator.onLine) {
+		        status = "Online";
+		        loadData();
+		    } else {
+		        let status = "offline";
+		        location = "/offline.html";
+		    }
 
 		};
 		const loadData = () => {
 
-			//Get the destination address
-			var y = document.getElementById("destination").value;
+		    //Get the destination address
+		    var y = document.getElementById("destination")
+		        .value;
 
-			//Fetch weather data with no AQI metric and only 3 days 
-			const fetch_url = "https://api.weatherapi.com/v1/forecast.xml?key="+api_key+"&q=" + y + "&aqi=no&days=3";
+		    //Fetch weather data with no AQI metric and only 3 days 
+		    const fetch_url = "https://api.weatherapi.com/v1/forecast.xml?key=" + api_key + "&q=" + y + "&aqi=no&days=3";
 
-			fetch(fetch_url).then(response => response.text()).then(data => {
-				const parser = new DOMParser();
-				const xml = parser.parseFromString(data, "application/xml");
-				//console.log(xml);
-				var d = new Date(); // for now
-				document.getElementById("location").innerHTML = xml.getElementsByTagName("name")[0].childNodes[0].nodeValue;
-				document.getElementById("temp").innerHTML = xml.getElementsByTagName("temp_c")[0].childNodes[0].nodeValue;
-				document.getElementById("feelslike").innerHTML = xml.getElementsByTagName("feelslike_c")[0].childNodes[0].nodeValue;
-				document.getElementById("weather").innerHTML = xml.getElementsByTagName("text")[0].childNodes[0].nodeValue;
-				document.getElementById("wind").innerHTML = xml.getElementsByTagName("wind_kph")[0].childNodes[0].nodeValue;
-				document.getElementById("last_success_pull").innerHTML = d;
-				document.getElementById("last_updated").innerHTML = xml.getElementsByTagName("last_updated")[0].childNodes[0].nodeValue;
-				console.log('finished updated boxes');
-				var i;
-				var table = "";
+		    fetch(fetch_url)
+		        .then(response => response.text())
+		        .then(data => {
+		            const parser = new DOMParser();
+		            const xml = parser.parseFromString(data, "application/xml");
+		            //console.log(xml);
+		            var d = new Date(); // for now
+		            document.getElementById("location")
+		                .innerHTML = xml.getElementsByTagName("name")[0].childNodes[0].nodeValue;
+		            document.getElementById("temp")
+		                .innerHTML = xml.getElementsByTagName("temp_c")[0].childNodes[0].nodeValue;
+		            document.getElementById("feelslike")
+		                .innerHTML = xml.getElementsByTagName("feelslike_c")[0].childNodes[0].nodeValue;
+		            document.getElementById("weather")
+		                .innerHTML = xml.getElementsByTagName("text")[0].childNodes[0].nodeValue;
+		            document.getElementById("wind")
+		                .innerHTML = xml.getElementsByTagName("wind_kph")[0].childNodes[0].nodeValue;
+		            document.getElementById("last_success_pull")
+		                .innerHTML = d;
+		            document.getElementById("last_updated")
+		                .innerHTML = xml.getElementsByTagName("last_updated")[0].childNodes[0].nodeValue;
+		            console.log('finished updated boxes');
+		            var i;
+		            var table = "";
 
-				//Reset the table important when change location to start fresh
-				document.getElementById("table-cards").innerHTML = table;
+		            //Reset the table important when change location to start fresh
+		            document.getElementById("table-cards")
+		                .innerHTML = table;
 
-				var x = xml.getElementsByTagName("forecastday");
-
-
-				var weekdays = new Array(7);
-        weekdays[0] = "Monday";
-        weekdays[1] = "Tuesday";
-        weekdays[2] = "Wednesday";
-        weekdays[3] = "Thursday";
-        weekdays[4] = "Friday";
-        weekdays[5] = "Saturday";
-        weekdays[6] = "Sunday";
-
-        // Accepts a Date object or date string that is recognized by the Date.parse() method
-				function getDayOfWeek(date) {
-  				const dayOfWeek = new Date(date).getDay();    
-  				return isNaN(dayOfWeek) ? null : 
-    				['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday','Sunday' ][dayOfWeek];
-				}
-
-				// Start to fetch the data by using TagName 
-				for(i = 0; i < x.length; i++) {
-					var rain = x[i].getElementsByTagName("daily_will_it_rain")[0].childNodes[0].nodeValue ? 'ye' : 'nah';
-
-					var o = x[i].getElementsByTagName("date")[0].childNodes[0].nodeValue;
-					var r = new Date(o);
-
-					var p = r.getDay();
-					console.log(p);
-					//var r = o.toLocaleString("default", { weekday: "short" });
-					console.log(o);
-
-					table += "  <div style='order:0;' class='Rtable-cell Rtable-cell--head'><h3>" + getDayOfWeek(o) + "</h3></div><div style='order:1;' class='Rtable-cell'>" + x[i].getElementsByTagName("mintemp_c")[0].childNodes[0].nodeValue + " <----> " + x[i].getElementsByTagName("maxtemp_c")[0].childNodes[0].nodeValue + "</div><div style='order:2;' class='Rtable-cell'>" + x[i].getElementsByTagName("text")[0].childNodes[0].nodeValue + "</div><div style='order:3;'' class='Rtable-cell Rtable-cell'><strong>" + x[i].getElementsByTagName("sunrise")[0].childNodes[0].nodeValue + " - " + x[i].getElementsByTagName("sunset")[0].childNodes[0].nodeValue + "</strong></div>";
-
-					//Custom will it rain text
-					if(x[i].getElementsByTagName("daily_will_it_rain")[0].childNodes[0].nodeValue == true) {
-						rain_text = 'yes';
-						table += "<div style='order:4;' class='Rtable-cell'>" + x[i].getElementsByTagName("totalprecip_mm")[0].childNodes[0].nodeValue + "mm precip.</div><br>";
-					} else {
-						rain_text = 'nah';
-						//cheating
-						table += "<br>";
-					}
-		
+		            var x = xml.getElementsByTagName("forecastday");
 
 
-				}
-				// Print the xml data in table form
-				document.getElementById("table-cards").innerHTML += table+"<br>";
-				var i = 1;
+		            var weekdays = new Array(7);
+		            weekdays[0] = "Monday";
+		            weekdays[1] = "Tuesday";
+		            weekdays[2] = "Wednesday";
+		            weekdays[3] = "Thursday";
+		            weekdays[4] = "Friday";
+		            weekdays[5] = "Saturday";
+		            weekdays[6] = "Sunday";
 
-				//Create an object with the data we want to show the user
-				//There are more metrics available, but these are the most relevant
-				var weatherDataObject = new Object();
-				weatherDataObject.location = xml.getElementsByTagName("name")[0].childNodes[0].nodeValue;
-				weatherDataObject.region = xml.getElementsByTagName("region")[0].childNodes[0].nodeValue;
-				weatherDataObject.feelslike = xml.getElementsByTagName("feelslike_c")[0].childNodes[0].nodeValue;
-				weatherDataObject.temp = xml.getElementsByTagName("temp_c")[0].childNodes[0].nodeValue;
-				weatherDataObject.weather = xml.getElementsByTagName("text")[0].childNodes[0].nodeValue;
-				weatherDataObject.wind = xml.getElementsByTagName("wind_kph")[0].childNodes[0].nodeValue;
-				weatherDataObject.last_success_pull = d;
-				weatherDataObject.last_server_update = xml.getElementsByTagName("last_updated")[0].childNodes[0].nodeValue;
-				weatherDataObject.forecastTable = table;
-				localStorage.setItem(i, JSON.stringify(weatherDataObject));
-			}).catch(console.error);
+		            // Accepts a Date object or date string that is recognized by the Date.parse() method
+		            function getDayOfWeek(date) {
+		                const dayOfWeek = new Date(date)
+		                    .getDay();
+		                return isNaN(dayOfWeek) ? null : ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][dayOfWeek];
+		            }
+
+		            // Start to fetch the data by using TagName 
+		            for (i = 0; i < x.length; i++) {
+		                var rain = x[i].getElementsByTagName("daily_will_it_rain")[0].childNodes[0].nodeValue ? 'ye' : 'nah';
+
+		                var o = x[i].getElementsByTagName("date")[0].childNodes[0].nodeValue;
+		                var r = new Date(o);
+
+		                var p = r.getDay();
+		                console.log(p);
+		                //var r = o.toLocaleString("default", { weekday: "short" });
+		                console.log(o);
+
+		                table += "  <div style='order:0;' class='Rtable-cell Rtable-cell--head'><h3>" + getDayOfWeek(o) + "</h3></div><div style='order:1;' class='Rtable-cell'>" + x[i].getElementsByTagName("mintemp_c")[0].childNodes[0].nodeValue + " <----> " + x[i].getElementsByTagName("maxtemp_c")[0].childNodes[0].nodeValue + "</div><div style='order:2;' class='Rtable-cell'>" + x[i].getElementsByTagName("text")[0].childNodes[0].nodeValue + "</div><div style='order:3;'' class='Rtable-cell Rtable-cell'><strong>" + x[i].getElementsByTagName("sunrise")[0].childNodes[0].nodeValue + " - " + x[i].getElementsByTagName("sunset")[0].childNodes[0].nodeValue + "</strong></div>";
+
+		                //Custom will it rain text
+		                if (x[i].getElementsByTagName("daily_will_it_rain")[0].childNodes[0].nodeValue == true) {
+		                    rain_text = 'yes';
+		                    table += "<div style='order:4;' class='Rtable-cell'>" + x[i].getElementsByTagName("totalprecip_mm")[0].childNodes[0].nodeValue + "mm precip.</div><br>";
+		                } else {
+		                    rain_text = 'nah';
+		                    //cheating
+		                    table += "<br>";
+		                }
+
+
+
+		            }
+		            // Print the xml data in table form
+		            document.getElementById("table-cards")
+		                .innerHTML += table + "<br>";
+		            var i = 1;
+
+		            //Create an object with the data we want to show the user
+		            //There are more metrics available, but these are the most relevant
+		            var weatherDataObject = new Object();
+		            weatherDataObject.location = xml.getElementsByTagName("name")[0].childNodes[0].nodeValue;
+		            weatherDataObject.region = xml.getElementsByTagName("region")[0].childNodes[0].nodeValue;
+		            weatherDataObject.feelslike = xml.getElementsByTagName("feelslike_c")[0].childNodes[0].nodeValue;
+		            weatherDataObject.temp = xml.getElementsByTagName("temp_c")[0].childNodes[0].nodeValue;
+		            weatherDataObject.weather = xml.getElementsByTagName("text")[0].childNodes[0].nodeValue;
+		            weatherDataObject.wind = xml.getElementsByTagName("wind_kph")[0].childNodes[0].nodeValue;
+		            weatherDataObject.last_success_pull = d;
+		            weatherDataObject.last_server_update = xml.getElementsByTagName("last_updated")[0].childNodes[0].nodeValue;
+		            weatherDataObject.forecastTable = table;
+		            localStorage.setItem(i, JSON.stringify(weatherDataObject));
+		        })
+		        .catch(console.error);
 		};
 		</script>
 		<div class="weather">
