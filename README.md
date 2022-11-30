@@ -3,7 +3,7 @@
 # Offline weather
 
 
-Uses [UpUp](https://www.talater.com/upup/) for offline capabilities and local storage for caching data. This is written in vanilla Javascript to minimize the use of external libraries. Since this is an offline-first project, UpUp is included and required by the project.
+Uses [UpUp](https://www.talater.com/upup/) for offline capabilities and local storage for caching data. This is written in vanilla Javascript to minimize the use of external libraries. A minified version of Bootstrap is also used. Since this is an offline-first project, UpUp is included and required by the project.
 
 
 # Why
@@ -19,6 +19,3 @@ Since the data is cached on the client side, the only outgoing request data is t
 # How
 
 [Weather API](https://www.weatherapi.com/) is a free and very generous API to fetch weather conditions. When online, data is fetched and displayed in `index.html`. When offline, data is read from cache and displayed in `offline.html`
-
-# License
-
