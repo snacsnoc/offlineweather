@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="apple-touch-icon" sizes="180x180" type="image/png" href="/apple-touch-icon.png">
+	<link rel="shortcut icon" type="image/x-icon" href="/apple-touch-icon.ico" />
+	<link rel="stylesheet" href="/bootstrap-reboot.min.css">
+			<link rel="stylesheet" href="/style.css">
+
+	<title>Offline Weather</title>
+
+</head>
+
+<body>
+	
+	<div style="text-align:center; margin-top:40px;">
+		<img src="/img/offline.png" width="80" height="80" />
+		<p>You are currently OFFLINE. Pull down from top to <b>REFRESH</b></p>
+		<div>
+			<p id="p1"></p>
+			<div id="status"></div>
+
+
+		<div class="weather">
+			<div class="row">
+				<div class="col-md-10">
+					<div class="card"> <span class="icon"><img src="/img/offline.png" width="80" height="80" /></span>
+						<div class="title" id="location">
+						</div>
+						<div class="temp" id="temp"><sup>&deg;</sup></div>
+						<div class="row">
+							<div class="col-4">
+								<div class="header">Weather</div>
+								<div class="value" id="weather"></div>
+							</div>
+							<div class="col-4">
+								<div class="header">Feels like</div>
+								<div class="value" id="feelslike"></div>
+							</div>
+							<div class="col-4">
+								<div class="header">Wind</div>
+								<div class="value" id="wind"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+				<div id="table-cards" class="Rtable Rtable--3cols Rtable--margins Rtable--collapse">
+		</div>
+
+		<hr>
+		<small>Last Client Update:<div id="last_success_pull"></div> Last server weather Update:<div id="last_updated"></div>
+		</small>
+
+			<script>
+			const localStorage = window.localStorage;
+			if(typeof(Storage) !== "undefined") {
+				var i = 1;
+				var weatherDataObject = JSON.parse(localStorage.getItem(i));
+				var place_location = weatherDataObject.location;
+				console.log(place_location);
+				document.getElementById('location').innerHTML = place_location;
+				document.getElementById('temp').innerHTML = weatherDataObject.temp;
+				document.getElementById('feelslike').innerHTML = weatherDataObject.feelslike;
+				document.getElementById('weather').innerHTML = weatherDataObject.weather;
+				document.getElementById("wind").innerHTML = weatherDataObject.wind;
+				document.getElementById("last_success_pull").innerHTML = weatherDataObject.last_success_pull;
+				document.getElementById("last_updated").innerHTML = weatherDataObject.last_server_update;
+				document.getElementById("table-cards").innerHTML += weatherDataObject.forecastTable;
+				console.log(weatherDataObject.forecastTable);
+			} else {
+				// No web storage Support.
+				document.getElementById("weather").innerHTML = 'NO WEB STORAGE SUPPORT';
+			}
+			</script>
+
+
+</html>
